@@ -1,19 +1,71 @@
 package main
 
-import "fmt" // pkg.go.dev/fmt
+import (
+	"booking-app/helper"
+	"fmt" // pkg.go.dev/fmt
+	"strings"
+)
+
+//2:37:20
+/*package level variables*/
+var conferenceName = "Go Conference"
+var remianingTickets uint = conferenceTickets
+var bookings []string // var bookings = [50]string{}
+const conferenceTickets = 50
 
 func main() {
-	conferenceName := "Go Conference"
-	const conferenceTickets = 50
-	var remianingTickets uint = conferenceTickets
-	var bookings [50]string // var bookings = [50]string{}
-
-	fmt.Printf("conferenceTickets is %T, remainingTickets is %T, conferenceName is %T\n", conferenceTickets, remianingTickets, conferenceName)
+	//fmt.Printf("conferenceTickets is %T, remainingTickets is %T, conferenceName is %T\n", conferenceTickets, remianingTickets, conferenceName)
 	//entry point
-	fmt.Printf("Welcome to %v booking system\n", conferenceName)
-	fmt.Printf("We have total of %v tickets and %v are still available.\n", conferenceTickets, remianingTickets)
-	fmt.Println("Get your tickets here to attend")
+	//greetUsers(conferenceName, conferenceTickets, remianingTickets)
+	greetUsers()
 
+	for remianingTickets > 0 && len(bookings) < 50 {
+		firstname, lastname, email, userTickets := getUserInput()
+		isValidName, isValidEmail, isValidNumber := helper.ValidInputs(firstname, lastname, email, userTickets, remianingTickets)
+
+		if isValidName && isValidEmail && isValidNumber {
+			bookTickets(userTickets, firstname, lastname, email)
+			firstNames := getFirstNames()
+			fmt.Printf("Thes first names of bookings are: %v\n", firstNames)
+
+			if remianingTickets == 0 {
+				//end program
+				fmt.Println("Our Conference is booked out, come back next year")
+				break //stop loop
+			}
+		} else {
+			if !isValidName {
+				fmt.Println("first name or last name was too short")
+			}
+			if !isValidEmail {
+				fmt.Println("The email you entered didn't contain @ sign")
+			}
+			if !isValidNumber {
+				fmt.Println("please enter a valid number")
+			}
+			//fmt.Printf("There are only %v tickets left, so you can't book %v tickets\n", remianingTickets, userTickets)
+			//continue //loop again from start of loop
+		}
+	}
+}
+
+func greetUsers() {
+	fmt.Printf("Welcome to %v booking application\n", conferenceName)
+	fmt.Printf("We have total of %v tickets and %v are still available.\n", conferenceName, remianingTickets)
+	fmt.Println("Get your tickets here to attend")
+}
+
+func getFirstNames() []string {
+	firstNames := []string{}
+	for _, booking := range bookings { //_ blink indentifier for where index is declare but not used
+		var names = strings.Fields(booking) //separate by space
+		firstNames = append(firstNames, names[0])
+	}
+	return firstNames
+}
+
+// capitalize the first letter so export function
+func getUserInput() (string, string, string, uint) {
 	var firstname string
 	var lastname string
 	var email string
@@ -28,14 +80,12 @@ func main() {
 	fmt.Scan(&email)
 	fmt.Println("Enter your number of tickets: ")
 	fmt.Scan(&userTickets)
-
+	return firstname, lastname, email, userTickets
+}
+func bookTickets(userTickets uint, firstname string, lastname string, email string) {
 	remianingTickets = remianingTickets - userTickets
-	bookings[0] = firstname + " " + lastname
+	bookings = append(bookings, firstname+" "+lastname)
 
-	// fmt.Printf("The whole array: %v\n", bookings)
-	// fmt.Printf("The first value array: %v\n", bookings[0])
-	// fmt.Printf("Array type: %T\n", bookings)
-	// fmt.Printf("Array length: %v\n", len(bookings))
 	//slice in Go-> avstration of an array, variable-length
 	fmt.Printf("Thank you %v %v for booking %v tickets. You will receieve a confirmation email at %v\n", firstname, lastname, userTickets, email)
 	fmt.Printf("%v tickets remaining for %v\n", remianingTickets, conferenceName)
