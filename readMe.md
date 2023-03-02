@@ -1,3 +1,3 @@
 ## startup
 
-go mod init booking-app
+go mod init booking-app1
